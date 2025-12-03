@@ -1,12 +1,12 @@
-const axios = require("axios");
+import axios from "axios";
 
-module.exports = async (req, res) => {
-  // --- CORS ---
+export default async function handler(req, res) {
+  // --- CORS NECESARIO EN VERCEL ---
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-  // Preflight (para que funcione en producción)
+  // Responder rápido al preflight
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
@@ -25,10 +25,7 @@ module.exports = async (req, res) => {
 
     const response = await axios.post(
       "https://api.evolutionmanager.app/message/sendText",
-      {
-        number,
-        message,
-      },
+      { number, message },
       {
         headers: {
           Authorization: "Bearer 8AA0D006DB99-4CC7-94E7-64E35726F0DD",
@@ -37,9 +34,13 @@ module.exports = async (req, res) => {
       }
     );
 
-    return res.json({ success: true, response: response.data });
+    return res.status(200).json({
+      success: true,
+      response: response.data,
+    });
+
   } catch (err) {
-    console.error(err);
+    console.error("ERROR SERVIDOR:", err?.response?.data || err);
     return res.status(500).json({ error: "Error al enviar mensaje" });
   }
-};
+}
